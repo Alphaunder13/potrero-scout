@@ -64,6 +64,7 @@ REGLAS INVIOLABLES (anti-alucinacion):
 4. "comparable_estilo" es una comparacion de ESTILO, tentativa y cualitativa, no un dato. Marcala como tentativa y no la presentes como un hecho. Si no podes fundamentarla con lo que hay, deci que es solo orientativa.
 5. En "fortalezas", cuando exista el percentil, citalo textual (ej: "percentil 0.82 en goles_90 dentro de su posicion"). Si no hay percentil, hablar de la cifra cruda por-90 y aclarar que el percentil no esta disponible.
 6. No inventes clubes, transferencias, lesiones, ni rendimientos que no esten en los datos.
+7. NO atribuyas MECANISMOS que el dato no respalda: no afirmes COMO ni DESDE DONDE genera su aporte un jugador (ej: "desde la pelota parada", "desde la salida", "por la banda derecha", "de contraataque", "en jugadas elaboradas"). Los datos dicen CUANTO aporta (asistencias/90, goles/90, percentiles), no COMO ni POR DONDE. Para el ascenso NO hay datos de eventos que sustenten esas atribuciones. Podes reportar la magnitud del aporte; no inventes su origen. Si vas a interpretar, quedate en lo que el numero permite y marcalo como tentativo.
 
 El objetivo es un informe honesto y util para un director deportivo: que no prometa lo que el dato no respalda."""
 
