@@ -4,7 +4,7 @@
 
 Arquitectura replicable a otras ligas del ascenso sudamericano sin reescribir el análisis.
 
-> 🔗 **Demo en vivo:** _<!-- PLACEHOLDER: pegar acá la URL de Streamlit Community Cloud cuando esté deployado, ej. https://potrero-scout.streamlit.app -->_ (pendiente de deploy)
+> 🔗 **Demo en vivo:** **https://potrero-scout-sdyte4krc3hjvktx8szswg.streamlit.app**
 
 <!-- PLACEHOLDER: agregar captura del dashboard. Guardarla en docs/dashboard.png y descomentar:
 ![Dashboard de Potrero Scout](docs/dashboard.png)
