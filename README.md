@@ -142,6 +142,14 @@ Un proyecto serio dice lo que **no** puede hacer.
 
 ---
 
+## Decisiones de diseño
+
+Cada decisión de arquitectura importante está documentada como **ADR** (Architecture Decision Record), con su contexto, las alternativas que se descartaron y sus consecuencias —incluido un postmortem honesto del incidente con la API key.
+
+👉 **[Ver DECISIONS.md](DECISIONS.md)**
+
+---
+
 ## Stack
 
 `Python 3` · `pandas` · `SQLite` · `cloudscraper` + navegador headless (vía ScraperFC) para la ingesta · `Streamlit` para el dashboard · **SDK de Anthropic (`claude-opus-4-8`)** con *structured outputs* para los informes.
