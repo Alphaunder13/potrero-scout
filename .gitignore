@@ -8,6 +8,9 @@ data/
 *.db
 *.sqlite
 *.sqlite3
+# Excepcion: el snapshot del dataset SI se versiona, para que el deploy
+# (Streamlit Cloud) tenga datos. Son 259 jugadores, datos publicos, sin secretos.
+!db/scout.db
 
 # --- Python ---
 __pycache__/

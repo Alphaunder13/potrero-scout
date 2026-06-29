@@ -30,6 +30,15 @@ import claude_report as cr   # noqa: E402
 
 DB_PATH = ROOT / "db" / "scout.db"
 load_dotenv(ROOT / ".env")
+# En Streamlit Cloud la key NO viene de un .env (no existe en la nube), sino de
+# st.secrets. La exponemos como variable de entorno para que el SDK de Anthropic
+# la tome. El secret se carga en la config de Streamlit, NUNCA en el repo.
+if not os.getenv("ANTHROPIC_API_KEY"):
+    try:
+        if st.secrets.get("ANTHROPIC_API_KEY"):
+            os.environ["ANTHROPIC_API_KEY"] = st.secrets["ANTHROPIC_API_KEY"]
+    except Exception:
+        pass
 HAS_KEY = bool(os.getenv("ANTHROPIC_API_KEY"))
 
 
