@@ -49,7 +49,8 @@ def euros(v) -> str:
 # ---------------------------------------------------------------------------
 st.set_page_config(page_title="Potrero Scout", page_icon="⚽", layout="wide")
 st.title("⚽ Potrero Scout")
-st.caption("Detector de sub-23 infravalorados — Primera Nacional argentina (datos Transfermarkt)")
+st.caption("Filtro de productividad ofensiva ajustado por valor y edad — "
+           "punto de partida para análisis en video, no veredicto final.")
 
 # --- Controles (sidebar) ---
 with st.sidebar:
@@ -100,6 +101,12 @@ with col_detail:
     st.markdown("### 🔍 Cómo se calculó el score")
     pw = w.perf_weights.get(r["pos_pool"], w.perf_weights["OTHER"])
 
+    st.markdown(
+        f"**Pesos de rendimiento aplicados** para su familia de posición "
+        f"`{r['pos_pool']}` ({r['position']}): "
+        f"goles `{pw['goals_90']}` · asistencias `{pw['assists_90']}` "
+        f"— *cambian según la posición; a un 9 le pesa el gol, a un central la asistencia.*"
+    )
     st.markdown("**1. Percentiles dentro de su posición** (0–1, vs sus pares del pool)")
     perc = pd.DataFrame([
         {"Métrica": "goles_90", "Valor /90": r["goals_90"],

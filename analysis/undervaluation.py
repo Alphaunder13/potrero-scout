@@ -24,19 +24,23 @@ import pandas as pd
 from normalize import STATS
 
 
-# --- Pesos del rendimiento por pool (cuanto pesa cada stat) ------------------
-# goals_90 vs assists_90. Documentado: refleja que se le pide a cada rol.
+# --- Pesos del rendimiento por familia de posicion (cuanto pesa cada stat) ---
+# goals_90 vs assists_90, por POOL de posicion. Configurable y documentado:
+# refleja que se le pide a cada rol (a un 9 el gol; a un central, no tanto).
+# Para tocar la metrica, editar este diccionario y nada mas.
 PERF_WEIGHTS: dict[str, dict[str, float]] = {
-    "FW":  {"goals_90": 0.70, "assists_90": 0.30},  # 9: gol manda
-    "ATT": {"goals_90": 0.55, "assists_90": 0.45},  # extremo/enganche: mixto
-    "CM":  {"goals_90": 0.40, "assists_90": 0.60},  # volante: mas asistencia
-    "FB":  {"goals_90": 0.30, "assists_90": 0.70},  # lateral: aporte por asistencia
-    "CB":  {"goals_90": 0.50, "assists_90": 0.50},  # central: pobre con estos stats (*)
-    "GK":  {"goals_90": 0.50, "assists_90": 0.50},  # GK: no captado por estos stats (*)
+    "FW":  {"goals_90": 0.70, "assists_90": 0.30},  # Delantero (Centre-Forward): gol manda
+    "ATT": {"goals_90": 0.50, "assists_90": 0.50},  # Extremo / volante ofensivo: mixto
+    "CM":  {"goals_90": 0.40, "assists_90": 0.60},  # Mediocampo central/defensivo
+    "FB":  {"goals_90": 0.40, "assists_90": 0.60},  # Lateral (Full-Back)
+    "CB":  {"goals_90": 0.30, "assists_90": 0.70},  # Central (Centre-Back) (*)
+    "GK":  {"goals_90": 0.50, "assists_90": 0.50},  # Arquero: no captado por estos stats (*)
     "OTHER": {"goals_90": 0.50, "assists_90": 0.50},
 }
-# (*) Con solo goles/asistencias, CB y GK quedan mal medidos. Es una limitacion
-#     conocida de la V1 (sin datos de eventos). Queda documentada, no escondida.
+# (*) Con solo goles/asistencias, CB y GK quedan mal medidos (no hay datos de
+#     eventos ni acciones defensivas en el ascenso). Limitacion conocida de la
+#     V1, documentada y no escondida. Para CB, pesar la asistencia mas que el
+#     gol es lo menos malo: castiga menos a un central que no hace goles.
 
 
 @dataclass

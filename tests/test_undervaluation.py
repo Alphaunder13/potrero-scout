@@ -89,6 +89,34 @@ def test_mas_joven_mayor_juventud():
     assert uv._youth(18, w) > uv._youth(21, w) > uv._youth(23, w) == 0.0
 
 
+def test_delantero_goleador_no_se_hunde_por_no_asistir():
+    """Pesos por posicion: un '9' goleador puntua alto POR sus goles (peso 0.7)
+    y no se hunde por tener 0 asistencias; ademas le gana a un delantero
+    asistidor con el perfil inverso."""
+    # FW pondera goles 0.7 / asistencias 0.3
+    assert uv.PERF_WEIGHTS["FW"]["goals_90"] == 0.7
+    assert uv.PERF_WEIGHTS["FW"]["goals_90"] > uv.PERF_WEIGHTS["FW"]["assists_90"]
+
+    base = dict(position="Centre-Forward", minutes=1500, age=21,
+                market_value_eur=500_000)
+    df = pd.DataFrame([
+        dict(player_id=1, name="Goleador",  goals_90=0.80, assists_90=0.00, **base),
+        dict(player_id=2, name="Asistidor", goals_90=0.10, assists_90=0.80, **base),
+        dict(player_id=3, name="F1", goals_90=0.50, assists_90=0.30, **base),
+        dict(player_id=4, name="F2", goals_90=0.40, assists_90=0.20, **base),
+        dict(player_id=5, name="F3", goals_90=0.30, assists_90=0.10, **base),
+    ])
+    df = _pipeline(df)
+    perf = df.set_index("name")["performance"]
+    # el goleador rinde alto pese a 0 asistencias...
+    assert perf["Goleador"] >= 0.6
+    # ...y le gana al asistidor (perfil inverso) porque el gol pesa mas en un 9
+    assert perf["Goleador"] > perf["Asistidor"]
+    sl = uv.shortlist(df, sub_age=23, top_n=10)
+    nombres = list(sl["name"])
+    assert nombres.index("Goleador") < nombres.index("Asistidor")
+
+
 def test_guard_pool_chico_no_inventa_percentil():
     """Un pool con < min_pool jugadores: rankable=False, percentil NA (no 1.0
     fabricado) y fuera de la shortlist principal."""
