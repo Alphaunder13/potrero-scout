@@ -186,7 +186,7 @@ infiere datos.** El *grounding* se logra con tres mecanismos:
 
 ### Alternativas consideradas
 - **Pedirle al modelo que "calcule" desde stats crudas:** invita a la alucinación numérica.
-- **Bajar la temperatura del modelo:** _nuestro modelo (`claude-opus-4-8`) no expone el parámetro de temperatura, así que el control no viene de ahí sino del grounding y la verificación. (Nota a revisar: ajustar el vocabulario si se documenta un modelo que sí use temperatura.)_
+- **Bajar la temperatura del modelo:** no es la palanca acá — `claude-opus-4-8` no expone el parámetro de temperatura. El control anti-alucinación no viene de ahí, sino del *grounding* en datos ya calculados, los structured outputs y la verificación contra el ground truth.
 
 ### Consecuencias
 - **Positivas:** verificado en producción — los informes citan percentiles reales, reportan riesgos con datos en contra y declaran lo que no pueden saber.
