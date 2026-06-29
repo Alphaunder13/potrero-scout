@@ -1,0 +1,19 @@
+{
+  "player": "Leonel Cardozo",
+  "nota": "Informe REAL generado por la capa de IA (claude-opus-4-8) y validado contra el pipeline. Se guarda como muestra estatica para la demo publica, donde la generacion en vivo esta deshabilitada para no exponer la API key.",
+  "perfil": "Leonel Cardozo es un central de 22 años que disputó 660 minutos en la Primera Nacional, con un valor de mercado bajo (€50.000). Es un jugador joven con poca muestra de minutos, lo que obliga a leer sus números con cautela. Su score de rendimiento dentro del pool de centrales es alto (0.805) y aparece como una opción económica e infravalorada (baratura 0.876, score de infravaloración 0.734).",
+  "fortalezas": [
+    "Aporte ofensivo poco habitual para un central: percentil 0.966 en assists_90 dentro de su posición, con 0.136 asistencias/90. Es su dato más destacado, aunque sobre una muestra chica de 660 minutos.",
+    "Score de rendimiento alto: 0.805 dentro del pool de centrales.",
+    "Perfil económico e infravalorado: baratura 0.876 y score de infravaloración 0.734, con valor de mercado de €50.000.",
+    "Juventud (22 años) con margen de proyección."
+  ],
+  "comparable_estilo": "Comparación solo orientativa y tentativa: un central joven con cierta vocación de aporte ofensivo en pases que derivan en gol. No hay datos de eventos ni métricas avanzadas para fundamentar un comparable concreto, así que cualquier nombre sería especulativo y no lo afirmo como hecho.",
+  "tesis_por_que_ahora": "La oportunidad pasa por la combinación de bajo costo (€50.000), juventud (22) y un score de rendimiento e infravaloración favorables. El percentil de asistencias es llamativo para un central. La tesis es de apuesta de bajo riesgo económico sobre un perfil joven; conviene actuar antes de que sume más minutos y eventualmente suba su valuación.",
+  "riesgos": [
+    "Muestra muy chica: solo 660 minutos, lo que vuelve inestables todos los indicadores, especialmente el percentil de asistencias.",
+    "No hay métricas avanzadas para la Primera Nacional (xG, datos de eventos, acciones defensivas): no se puede evaluar su solidez defensiva, que es lo central en un CB.",
+    "El percentil de goles es medio-bajo (0.431) con 0 goles/90; el aporte ofensivo se apoya casi exclusivamente en asistencias.",
+    "No hay datos para saber cómo genera ese aporte ni para confirmar que sea sostenible en mayor volumen de minutos."
+  ]
+}

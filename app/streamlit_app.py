@@ -12,6 +12,7 @@ Correr:  streamlit run app/streamlit_app.py
 """
 from __future__ import annotations
 
+import json
 import os
 import sqlite3
 import sys
@@ -40,6 +41,25 @@ if not os.getenv("ANTHROPIC_API_KEY"):
     except Exception:
         pass
 HAS_KEY = bool(os.getenv("ANTHROPIC_API_KEY"))
+
+# Local vs nube: el .env existe en local (gitignored) y NUNCA en Streamlit Cloud.
+# En la demo publica NO exponemos el boton de generacion en vivo (la app es
+# publica: cada clic gastaria la API key). Ahi mostramos un informe ya generado.
+IS_LOCAL = (ROOT / ".env").exists()
+SAMPLE_REPORT = ROOT / "reports" / "sample_report_cardozo.json"
+
+
+def render_report(rep: dict) -> None:
+    """Renderiza un informe (en vivo o de ejemplo) con el mismo formato."""
+    st.markdown(f"**Perfil**\n\n{rep['perfil']}")
+    st.markdown("**Fortalezas**")
+    for f in rep["fortalezas"]:
+        st.markdown(f"- {f}")
+    st.markdown(f"**Comparable de estilo** (tentativo)\n\n{rep['comparable_estilo']}")
+    st.markdown(f"**Tesis — por qué ahora**\n\n{rep['tesis_por_que_ahora']}")
+    st.markdown("**Riesgos**")
+    for rg in rep["riesgos"]:
+        st.markdown(f"- {rg}")
 
 
 @st.cache_data(show_spinner=False)
@@ -147,22 +167,26 @@ with col_detail:
 
     # ---- Informe de IA ----
     st.markdown("### 🧠 Informe de scouting (IA)")
-    payload = cr.build_player_payload(r)
-    if HAS_KEY:
+    if IS_LOCAL and HAS_KEY:
+        # Local con key: generacion en vivo del jugador seleccionado.
+        payload = cr.build_player_payload(r)
         if st.button("Generar informe real (usa la API de Anthropic — paga por uso)"):
             with st.spinner("Generando con Claude…"):
                 report = cr.generate_report(payload, dry_run=False)
-            st.markdown(f"**Perfil**\n\n{report['perfil']}")
-            st.markdown("**Fortalezas**")
-            for f in report["fortalezas"]:
-                st.markdown(f"- {f}")
-            st.markdown(f"**Comparable de estilo** (tentativo)\n\n{report['comparable_estilo']}")
-            st.markdown(f"**Tesis — por qué ahora**\n\n{report['tesis_por_que_ahora']}")
-            st.markdown("**Riesgos**")
-            for rg in report["riesgos"]:
-                st.markdown(f"- {rg}")
-    else:
+            render_report(report)
+    elif IS_LOCAL:
+        # Local sin key: dry-run, muestra que se enviaria sin gastar.
+        payload = cr.build_player_payload(r)
         st.info("Sin `ANTHROPIC_API_KEY` en el `.env` → modo dry-run (no se llama a la API). "
                 "Poné la key y recargá para habilitar el botón de generar.")
         with st.expander("Ver lo que se le enviaría al modelo (datos ya calculados)"):
             st.code(payload, language="text")
+    else:
+        # Demo publica (Streamlit Cloud): sin generacion en vivo. Informe de ejemplo.
+        st.info("🔒 La generación en vivo está deshabilitada en esta demo pública: "
+                "no exponemos la API key, que se gastaría con cada clic. Abajo, un "
+                "informe **real** ya generado por el sistema, como muestra de lo que produce.")
+        sample = json.loads(SAMPLE_REPORT.read_text(encoding="utf-8"))
+        st.markdown(f"#### 📋 Informe de ejemplo — {sample['player']} "
+                    "*(generado en local con la API y validado contra el pipeline)*")
+        render_report(sample)
