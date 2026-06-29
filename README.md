@@ -6,10 +6,9 @@ Arquitectura replicable a otras ligas del ascenso sudamericano sin reescribir el
 
 > 🔗 **Demo en vivo:** **https://potrero-scout-sdyte4krc3hjvktx8szswg.streamlit.app**
 
-<!-- PLACEHOLDER: agregar captura del dashboard. Guardarla en docs/dashboard.png y descomentar:
-![Dashboard de Potrero Scout](docs/dashboard.png)
--->
-_📸 Captura del dashboard: pendiente (ver `docs/dashboard.png`)._
+![Dashboard de Potrero Scout — shortlist, perfil del jugador y desglose auditable del score](docs/dashboard.png)
+
+_El dashboard: shortlist rankeada a la izquierda, y al elegir un jugador, su perfil + el desglose transparente de cómo se calculó el score (percentiles, pesos por posición, aportes)._
 
 ---
 
