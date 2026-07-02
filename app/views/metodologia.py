@@ -11,12 +11,12 @@ st.title("Metodología")
 st.caption(common.snapshot_caption(common.load_snapshot_meta()))
 
 st.info(
-    "**Estado de implementación.** Esta página describe la metodología completa "
-    "del radar. Dos piezas están en construcción y todavía no se ven en la app: "
-    "los **niveles de confianza (A/B/C)** —que llegan con la capa verificada a "
-    "mano— y el **Talent Gap Score (0–100) con subscores**. El score visible hoy "
-    "es el de la versión anterior (0–1), calculado con los mismos principios que "
-    "se describen acá."
+    "**Estado de implementación.** El **Talent Gap Score (0–100) con sus cuatro "
+    "subscores** está vivo y es auditable en la sección Radar. El mecanismo de "
+    "**niveles de confianza (A/B/C)** también está vivo, pero la asignación es "
+    "parte de la verificación manual del top-15, que está **en curso**: hasta "
+    "completarla, los jugadores muestran «sin verificar» — nunca un valor por "
+    "defecto que parezca dato."
 )
 
 st.markdown("""
@@ -46,7 +46,7 @@ Es una anomalía estadística pública, no un veredicto de calidad.
 Un indicio derivado exclusivamente de datos públicos verificables, con fuente y
 fecha citadas. Ni información privada, ni rumores, ni juicio propio.
 
-## Niveles de confianza *(en construcción — llegan con la capa verificada)*
+## Niveles de confianza *(asignación en curso — hasta entonces: «sin verificar»)*
 
 - **A** — datos completos, fuentes frescas (≤60 días), muestra sobre el umbral
   de minutos, valor de mercado con actualización reciente.

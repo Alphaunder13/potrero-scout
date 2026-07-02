@@ -2,7 +2,7 @@
 streamlit_app.py — Entrypoint de Potrero Scout V2 (Talent Gap Radar).
 
 Router multipage (st.navigation + st.Page, Streamlit >= 1.36). El contenido
-vive en app/pages/*; los helpers compartidos en app/common.py.
+vive en app/views/*; los helpers compartidos en app/common.py.
 
 Correr:  streamlit run app/streamlit_app.py
 """
@@ -14,10 +14,10 @@ st.set_page_config(
 )
 
 pages = [
-    st.Page("pages/home.py", title="Home", default=True),
-    st.Page("pages/radar.py", title="Radar"),
-    st.Page("pages/metodologia.py", title="Metodología"),
-    st.Page("pages/fuentes.py", title="Fuentes"),
+    st.Page("views/home.py", title="Home", default=True),
+    st.Page("views/radar.py", title="Radar"),
+    st.Page("views/metodologia.py", title="Metodología"),
+    st.Page("views/fuentes.py", title="Fuentes"),
 ]
 
 st.navigation(pages).run()

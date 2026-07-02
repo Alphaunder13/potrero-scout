@@ -49,7 +49,27 @@ else:
     st.warning("Fecha de datos no disponible: falta la metadata del snapshot.")
 
 st.divider()
-st.caption(
-    "La capa verificada a mano —con URL de fuente y fecha de consulta por cada "
-    "dato de cada jugador del top-15— está en construcción."
-)
+st.markdown("## Fuentes cargadas en la capa verificada")
+
+import talent_gap as tg  # noqa: E402
+
+manual = tg.load_manual_layer()
+_SOURCE_COLS = ["source_market_value", "source_minutes", "source_profile",
+                "source_contract", "source_news", "source_video"]
+urls: list[str] = []
+if not manual.empty:
+    for col in _SOURCE_COLS:
+        if col in manual.columns:
+            urls += [str(u).strip() for u in manual[col].dropna()
+                     if str(u).strip()]
+urls = sorted(set(urls))
+
+if urls:
+    st.markdown(f"{len(urls)} fuentes citadas en el top-{len(manual)} verificado:")
+    for u in urls:
+        st.markdown(f"- {u}")
+else:
+    st.caption(
+        "Aún no hay fuentes cargadas: la verificación manual del top-15 está "
+        "en curso. Cada dato verificado llevará su URL y fecha de consulta."
+    )

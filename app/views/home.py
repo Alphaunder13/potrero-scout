@@ -48,5 +48,5 @@ else:
             st.caption("Por qué está acá: " + " · ".join(ds[:2]))
 
 st.divider()
-common.nav_link("pages/radar.py", "Ver el radar completo (las dos capas)")
-common.nav_link("pages/metodologia.py", "Cómo se calcula el score — y qué NO mide")
+common.nav_link("views/radar.py", "Ver el radar completo (las dos capas)")
+common.nav_link("views/metodologia.py", "Cómo se calcula el score — y qué NO mide")
