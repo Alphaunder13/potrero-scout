@@ -6,9 +6,9 @@ Arquitectura replicable a otras ligas del ascenso sudamericano sin reescribir el
 
 > 🔗 **Demo en vivo:** **https://potrero-scout-sdyte4krc3hjvktx8szswg.streamlit.app**
 
-![Dashboard de Potrero Scout — shortlist, perfil del jugador y desglose auditable del score](docs/dashboard.png)
+![Radar de Potrero Scout — dos capas (cuantitativa y en verificación), Talent Gap Score y confianza por jugador](docs/dashboard.png)
 
-_El dashboard: shortlist rankeada a la izquierda, y al elegir un jugador, su perfil + el desglose transparente de cómo se calculó el score (percentiles, pesos por posición, aportes)._
+_La sección Radar (V2): las dos capas señalizadas, Talent Gap Score, nivel de confianza como dimensión separada, filtros de scout y export CSV. Cada TGS se puede desarmar a mano en el detalle del jugador._
 
 ---
 
