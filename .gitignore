@@ -9,6 +9,8 @@
 data/*
 # Excepcion: la metadata de procedencia del snapshot SI se versiona (ADR 0009).
 !data/snapshot_meta.json
+# Excepcion: la capa manual verificada (top-15) SI se versiona: es producto, no dato crudo.
+!data/radar_manual.csv
 *.db
 *.sqlite
 *.sqlite3
