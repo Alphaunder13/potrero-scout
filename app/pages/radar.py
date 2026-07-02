@@ -1,9 +1,5 @@
-"""Radar — capa cuantitativa completa: tabla filtrable + desglose auditable.
-
-La capa verificada a mano (top-15 con fuentes por dato) llega en el proximo
-bloque; por ahora esta seccion sirve la capa cuantitativa entera, etiquetada
-como tal.
-"""
+"""Radar — dos capas señalizadas: cuantitativa (completa) y top-15 en
+verificacion (capa manual). TGS con desglose auditable y export CSV."""
 import sys
 from pathlib import Path
 
@@ -12,50 +8,72 @@ import common  # noqa: E402
 
 import pandas as pd          # noqa: E402
 import streamlit as st       # noqa: E402
+import talent_gap as tg      # noqa: E402
 import undervaluation as uv  # noqa: E402
 
 st.title("Radar")
 st.caption(common.snapshot_caption(common.load_snapshot_meta()))
 
-df = common.load_scored()
+df = common.load_tgs()
+manual = tg.load_manual_layer()
+manual_ids = set(manual["player_id"]) if not manual.empty else set()
 
+n_manual = len(manual_ids)
 st.markdown(
-    f"**Capa cuantitativa — {len(df)} jugadores.** Todos los sub-25 de la "
-    "Primera Nacional con estadísticas en el pipeline. Es el filtro estadístico: "
-    "señala dónde mirar, no evalúa jugadores. La capa verificada a mano "
-    "(top-15 con fuente y fecha por dato) está en construcción."
+    f"**Dos capas.** Capa cuantitativa: **{len(df)} jugadores** del pipeline "
+    f"(el filtro estadístico). Capa en verificación manual: **top-{n_manual}** "
+    "con fuente y fecha por dato (en curso). El score señala dónde mirar; "
+    "no evalúa jugadores."
 )
 
-# --- Filtros -----------------------------------------------------------------
-c1, c2 = st.columns(2)
+# Dimension de capa y confianza (ADR 0010: la confianza NO altera el TGS)
+df = df.copy()
+df["capa"] = df["player_id"].map(
+    lambda pid: f"top-{n_manual} en verificación" if pid in manual_ids
+    else "cuantitativa")
+df["confianza"] = df["player_id"].map(
+    lambda pid: tg.confidence_for(pid, manual) if pid in manual_ids else "—")
+
+# --- Filtros: posicion, minutos, confianza ------------------------------------
+c1, c2, c3 = st.columns(3)
 posiciones = sorted(df["position"].dropna().unique())
 sel_pos = c1.multiselect("Posición", posiciones, default=[],
                          placeholder="Todas las posiciones")
 min_min = c2.slider("Minutos mínimos", 0, int(df["minutes"].max()), 0, 50)
+sel_conf = c3.multiselect("Confianza", ["A", "B", "C", tg.CONFIDENCE_UNSET],
+                          default=[], placeholder="Todas")
 
 view = df.copy()
 if sel_pos:
     view = view[view["position"].isin(sel_pos)]
 view = view[view["minutes"].fillna(0) >= min_min]
-view = view.sort_values("undervaluation", ascending=False, na_position="last")
+if sel_conf:
+    view = view[view["confianza"].isin(sel_conf)]
+view = view.sort_values("tgs", ascending=False, na_position="last")
 
 tabla = view[["name", "age", "position", "minutes", "market_value_eur",
-              "goals_90", "assists_90", "undervaluation"]].copy()
+              "tgs", "confianza", "capa"]].copy()
 tabla.columns = ["Jugador", "Edad", "Posición", "Min", "Valor €",
-                 "Goles/90", "Asist/90", "Score"]
+                 "TGS", "Confianza", "Capa"]
 tabla.index = range(1, len(tabla) + 1)
 st.dataframe(tabla, width="stretch", height=420)
 st.caption(
-    "Sin score = datos insuficientes para rankear (no llega al umbral de "
-    "minutos, o su pool de posición es demasiado chico para que el percentil "
-    "signifique algo). El criterio está explicado en Metodología."
+    "Sin TGS = datos insuficientes para rankear (umbral de minutos o pool de "
+    "posición chico; el porqué exacto aparece en el detalle del jugador). "
+    "Confianza «—» = fuera de la capa en verificación. Criterio en Metodología."
 )
 
-# --- Detalle del jugador: el desglose auditable --------------------------------
+# Export del radar filtrado
+st.download_button(
+    "Descargar radar filtrado (CSV)",
+    data=tabla.to_csv(index=False).encode("utf-8"),
+    file_name="potrero_radar.csv",
+    mime="text/csv",
+)
+
+# --- Detalle por jugador -------------------------------------------------------
 st.divider()
-st.subheader("Desglose por jugador")
-st.caption("Cada score se puede desarmar a mano: qué percentiles, qué pesos, "
-           "cómo se llega al número.")
+st.subheader("Detalle por jugador")
 
 if view.empty:
     st.warning("Ningún jugador pasa los filtros actuales.")
@@ -63,76 +81,69 @@ if view.empty:
 
 elegido = st.selectbox("Jugador a inspeccionar", list(view["name"]))
 r = view[view["name"] == elegido].iloc[0]
+conf = r["confianza"] if r["confianza"] != "—" else None
 
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("Edad", int(r["age"]))
 m2.metric("Minutos", int(r["minutes"]))
 m3.metric("Valor", common.euros(r["market_value_eur"]))
-m4.metric("Score", f"{r['undervaluation']:.3f}" if pd.notna(r["undervaluation"]) else "—")
-st.caption(f"{r['position']} · pool de comparación: **{r['pos_pool']}**")
+m4.metric("TGS", int(r["tgs"]) if pd.notna(r["tgs"]) else "—")
+st.caption(
+    f"{r['position']} · pool: **{r['pos_pool']}** · "
+    + (f"confianza: **{conf}**" if conf else "capa cuantitativa (fuera del top en verificación)")
+)
 
-if pd.isna(r["undervaluation"]):
-    st.info(
-        "Sin score: datos insuficientes para rankear. "
-        f"Minutos: {int(r['minutes'])} (umbral: 500) · "
-        f"tamaño de su pool: {int(r['pool_size'])} (mínimo: 5). "
-        "No se fabrica un percentil donde la comparación no significa nada."
-    )
+if pd.isna(r["tgs"]):
+    st.info(f"Sin TGS: {r['exclusion_reason']}. "
+            "No se fabrica un score donde la comparación no significa nada.")
 else:
-    w = uv.Weights()
-    pw = w.perf_weights.get(r["pos_pool"], w.perf_weights["OTHER"])
+    # Subscores 0-100
+    for etiqueta, valor in tg.subscores(r).items():
+        st.progress(min(max(valor / 100, 0.0), 1.0), text=f"{etiqueta}: {valor:.0f}")
 
-    st.markdown(
-        f"**Pesos de rendimiento aplicados** para su familia de posición "
-        f"`{r['pos_pool']}` ({r['position']}): goles `{pw['goals_90']}` · "
-        f"asistencias `{pw['assists_90']}` — cambian según la posición."
-    )
+    ds = tg.drivers(r)
+    if ds:
+        st.markdown("**Drivers (por reglas, trazables al dato):**")
+        for d in ds:
+            st.markdown(f"- {d}")
 
-    st.markdown("**1. Percentiles dentro de su posición** (0–1, vs sus pares del pool)")
-    perc = pd.DataFrame([
-        {"Métrica": "goles_90", "Valor /90": r["goals_90"],
-         "Percentil": r["goals_90_pct"], "Peso": pw["goals_90"]},
-        {"Métrica": "assists_90", "Valor /90": r["assists_90"],
-         "Percentil": r["assists_90_pct"], "Peso": pw["assists_90"]},
-    ])
-    st.dataframe(perc, width="stretch", hide_index=True)
+    with st.expander("Cálculo detallado (auditable)"):
+        w = uv.Weights()
+        pw = w.perf_weights.get(r["pos_pool"], w.perf_weights["OTHER"])
+        st.markdown(
+            f"**Pesos de rendimiento** del pool `{r['pos_pool']}`: goles "
+            f"`{pw['goals_90']}` · asistencias `{pw['assists_90']}`."
+        )
+        st.markdown("**Percentiles dentro de su posición** (0–1)")
+        st.dataframe(pd.DataFrame([
+            {"Métrica": "goles_90", "Valor /90": r["goals_90"],
+             "Percentil": r["goals_90_pct"], "Peso": pw["goals_90"]},
+            {"Métrica": "assists_90", "Valor /90": r["assists_90"],
+             "Percentil": r["assists_90_pct"], "Peso": pw["assists_90"]},
+        ]), width="stretch", hide_index=True)
+        st.markdown(
+            f"**Producción** = `({pw['goals_90']}·{r['goals_90_pct']:.3f} + "
+            f"{pw['assists_90']}·{r['assists_90_pct']:.3f})·100` = "
+            f"**{r['sub_produccion']:.1f}**"
+        )
+        st.markdown(
+            f"**Brecha de mercado** = producción vs percentil de valor en el pool "
+            f"(`{r['value_pct_pool']:.3f}`), normalizada = **{r['sub_brecha']:.1f}**"
+        )
+        st.markdown(
+            f"**Uso** = percentil de minutos en el pool = **{r['sub_uso']:.1f}** · "
+            f"**Recorrido de edad** = **{r['sub_edad']:.1f}**"
+        )
+        st.markdown(
+            f"**TGS** = `0.35·{r['sub_brecha']:.1f} + 0.30·{r['sub_produccion']:.1f} "
+            f"+ 0.20·{r['sub_uso']:.1f} + 0.15·{r['sub_edad']:.1f}` = "
+            f"**{int(r['tgs'])}**"
+        )
 
-    st.markdown(
-        f"**2. Rendimiento** = `{pw['goals_90']}·{r['goals_90_pct']:.3f} + "
-        f"{pw['assists_90']}·{r['assists_90_pct']:.3f}` = **{r['performance']:.3f}**"
-    )
-
-    comp = pd.DataFrame([
-        {"Componente": "Rendimiento", "Valor": r["performance"],
-         "Peso": str(w.w_perf), "Aporte": w.w_perf * r["performance"]},
-        {"Componente": "Baratura (valor bajo)", "Valor": r["cheapness"],
-         "Peso": str(w.w_cheap), "Aporte": w.w_cheap * r["cheapness"]},
-        {"Componente": "Juventud", "Valor": r["youth"],
-         "Peso": str(w.w_youth), "Aporte": w.w_youth * r["youth"]},
-        {"Componente": "Bonus proyección", "Valor": r["proj_bonus"],
-         "Peso": "(aditivo)", "Aporte": r["proj_bonus"]},
-    ])
-    st.markdown("**3. Score de infravaloración** = suma de aportes")
-    st.dataframe(comp, width="stretch", hide_index=True)
-    st.success(f"Infravaloración = **{r['undervaluation']:.4f}**")
-
-# --- Fichas ---------------------------------------------------------------
+# --- Ficha (capa verificada) ---------------------------------------------------
 st.divider()
-if common.IS_LOCAL and common.HAS_KEY:
-    # Solo en local: generacion en vivo (la clave nunca sale de esta maquina).
-    import claude_report as cr
-    payload = cr.build_player_payload(r)
-    if st.button("Generar informe (local — usa la API de Anthropic, paga por uso)"):
-        with st.spinner("Generando…"):
-            report = cr.generate_report(payload, dry_run=False)
-        st.markdown(f"**Perfil**\n\n{report['perfil']}")
-        st.markdown("**Fortalezas**")
-        for f_ in report["fortalezas"]:
-            st.markdown(f"- {f_}")
-        st.markdown(f"**Comparable de estilo** (tentativo)\n\n{report['comparable_estilo']}")
-        st.markdown(f"**Tesis — por qué ahora**\n\n{report['tesis_por_que_ahora']}")
-        st.markdown("**Riesgos**")
-        for rg in report["riesgos"]:
-            st.markdown(f"- {rg}")
+if int(r["player_id"]) in manual_ids:
+    st.caption("Ficha individual: en construcción.")
 else:
-    st.caption("Fichas individuales verificadas: en construcción.")
+    st.caption("Este jugador está en la capa cuantitativa; las fichas "
+               "individuales corresponden al top en verificación.")

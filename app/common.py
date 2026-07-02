@@ -25,6 +25,7 @@ for _p in (ROOT / "analysis", ROOT / "reports"):
 
 import normalize as nz       # noqa: E402
 import undervaluation as uv  # noqa: E402
+import talent_gap as tg      # noqa: E402
 
 DB_PATH = ROOT / "db" / "scout.db"
 META_PATH = ROOT / "data" / "snapshot_meta.json"
@@ -92,25 +93,17 @@ def load_scored(min_minutes: int = nz.DEFAULT_MIN_MINUTES,
     return uv.score(df)
 
 
+@st.cache_data(show_spinner=False)
+def load_tgs(min_minutes: int = nz.DEFAULT_MIN_MINUTES,
+             min_pool: int = nz.DEFAULT_MIN_POOL) -> pd.DataFrame:
+    """Dataset completo con la metrica + Talent Gap Score (subscores 0-100)."""
+    return tg.compute_tgs(load_scored(min_minutes, min_pool))
+
+
 def drivers(r) -> list[str]:
-    """2-3 lineas de 'por que esta aca', generadas por reglas sobre los datos.
-    Sin juicio de scout: cada frase es trazable a un numero del pipeline."""
-    out: list[str] = []
-    g, a = r.get("goals_90_pct"), r.get("assists_90_pct")
-    if pd.notna(g) and pd.notna(a):
-        if a >= g:
-            out.append(f"percentil {round(float(a) * 100)} en asistencias/90 "
-                       f"dentro de su pool ({r['pos_pool']})")
-        else:
-            out.append(f"percentil {round(float(g) * 100)} en goles/90 "
-                       f"dentro de su pool ({r['pos_pool']})")
-    ch = r.get("cheapness")
-    if pd.notna(ch) and float(ch) >= 0.75 and pd.notna(r.get("market_value_eur")):
-        out.append(f"valor de mercado bajo para su pool "
-                   f"(€{int(r['market_value_eur']):,})")
-    if r.get("minutes") and float(r["minutes"]) < 900:
-        out.append(f"muestra chica: {int(r['minutes'])}′")
-    return out
+    """2-3 lineas de 'por que esta aca', trazables a numeros (reglas en
+    analysis/talent_gap.py)."""
+    return tg.drivers(r)
 
 
 # ---------------------------------------------------------------------------
