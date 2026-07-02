@@ -218,3 +218,39 @@ Respuesta en este orden:
 - **Positivas:** incidente cerrado sin exposición real; controles preventivos en su lugar.
 - **Negativas / riesgos:** la verificación de "ningún secreto en el repo" hay que correrla en cada cambio, no asumirla.
 - **Reconsiderar si:** se agrega CI con un *secret scanner* (ej. gitleaks) que automatice esa verificación.
+
+---
+
+## ADR 0009 — Procedencia del snapshot: metadata explícita, no inferida del filesystem
+
+**Estado:** Aceptada · **Fecha:** 2026-07-02
+
+### Contexto
+La V2 muestra la fecha de los datos ("edición") en la Home y en cada ficha. Esa
+fecha necesita una fuente de verdad. La opción perezosa —inferirla del `mtime`
+de `db/scout.db`— falla justo donde más importa: en Streamlit Cloud, el checkout
+del deploy pisa los `mtime`, así que la app mostraría **la fecha del deploy como
+si fuera la fecha de los datos**. Una procedencia falsa en un producto cuya
+propuesta es, precisamente, la procedencia.
+
+### Decisión
+La fecha de los datos vive en `data/snapshot_meta.json`, un archivo de metadata
+explícito y versionado. Para el snapshot actual se creó a mano (backfill) con los
+valores reales conocidos; las corridas futuras de `ingest/build_dataset.py` lo
+escriben automáticamente al final (única modificación admitida a `ingest/`:
+aditiva pura, cero cambios a la lógica de scraping o procesamiento). Detalle de
+honestidad: las corridas futuras escriben `built_at` (fecha de la corrida), no un
+rango de captura — con la caché, parte de los datos puede ser anterior a la
+corrida, y afirmar un rango sería inventar procedencia. La app muestra la fecha
+solo si el archivo existe; si falta, muestra "fecha de datos no disponible" —
+nunca una fecha inferida ni hardcodeada.
+
+### Alternativas consideradas
+- **`mtime` del archivo de datos:** descartado — los checkouts de deploy lo pisan y produce procedencia falsa.
+- **Hardcodear la fecha en la UI:** envejece mal y se desincroniza del dato en silencio.
+- **Derivarla del historial de git:** acopla el dato al repo; la metadata debe viajar con el snapshot.
+
+### Consecuencias
+- **Positivas:** una sola fuente de verdad para la fecha de edición; la procedencia mostrada es siempre real o declaradamente ausente.
+- **Negativas / riesgos:** el backfill manual depende de que los valores registrados sean correctos; un archivo más que mantener (mitigado: lo escribe la corrida).
+- **Reconsiderar si:** el dataset pasa a actualizarse por partes o por fuente — ahí la procedencia debería ser por-dato (la capa manual de la V2 ya la trae: `last_updated` por registro).

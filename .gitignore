@@ -4,7 +4,11 @@
 !.env.example
 
 # --- Datos (crudos y limpios) y base SQLite ---
-data/
+# (data/* en vez de data/ para poder re-incluir archivos puntuales: git no
+#  permite negar dentro de un directorio excluido como directorio)
+data/*
+# Excepcion: la metadata de procedencia del snapshot SI se versiona (ADR 0009).
+!data/snapshot_meta.json
 *.db
 *.sqlite
 *.sqlite3

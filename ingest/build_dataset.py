@@ -18,7 +18,9 @@ Uso:
 from __future__ import annotations
 
 import argparse
+import json
 import sqlite3
+from datetime import date
 from pathlib import Path
 
 import pandas as pd
@@ -118,6 +120,26 @@ def main() -> None:
     print("\n  MUESTRA del dataset final (esquema-contrato del SPEC):")
     with pd.option_context("display.max_columns", None, "display.width", 200):
         print(df_final.head(12).to_string(index=False))
+
+    # ---- Metadata de procedencia del snapshot (ADR 0009) ---------------------
+    # Aditivo puro: no toca la logica de scraping ni de procesamiento. Escribe
+    # la fuente unica de verdad que la app usa para mostrar la fecha de datos.
+    # Nota: se escribe built_at (fecha de la corrida), NO un rango de captura:
+    # con la cache, parte de los datos puede ser anterior a la corrida, y
+    # afirmar un rango seria procedencia inventada.
+    meta = {
+        "season": args.season,
+        "built_at": date.today().isoformat(),
+        "players_with_stats": int(len(df_final)),
+        "total_league_players": int(len(df_sq)),
+        "source": "Transfermarkt",
+        "league": "Primera Nacional (Argentina)",
+        "competition_code": "ARG2",
+    }
+    meta_path = ROOT / "data" / "snapshot_meta.json"
+    meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n",
+                         encoding="utf-8")
+    print(f"  -> metadata de procedencia: {meta_path.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,12 @@
+{
+  "season": "2025",
+  "scrape_started": "2026-06-27",
+  "scrape_completed": "2026-06-29",
+  "built_at": "2026-06-29",
+  "players_with_stats": 259,
+  "total_league_players": 1053,
+  "source": "Transfermarkt",
+  "league": "Primera Nacional (Argentina)",
+  "competition_code": "ARG2",
+  "note": "Backfill manual del snapshot V1 (ADR 0009). Las corridas futuras de ingest/build_dataset.py escriben este archivo automaticamente."
+}
