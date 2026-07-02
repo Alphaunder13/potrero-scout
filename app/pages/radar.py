@@ -143,7 +143,22 @@ else:
 # --- Ficha (capa verificada) ---------------------------------------------------
 st.divider()
 if int(r["player_id"]) in manual_ids:
-    st.caption("Ficha individual: en construcción.")
+    import ficha_md
+    st.subheader("Ficha")
+    mrow = tg.manual_row_for(int(r["player_id"]), manual)
+    md = ficha_md.build_ficha_md(
+        r, mrow, provenance=common.snapshot_caption(common.load_snapshot_meta()))
+    if not ficha_md.is_verified(mrow):
+        st.info("Verificación en curso: esta ficha muestra solo la capa "
+                "cuantitativa. La versión completa (fuentes por dato, contexto, "
+                "confianza) se publica cuando la verificación manual termina.")
+    st.markdown(md)
+    st.download_button(
+        "Descargar ficha (.md)",
+        data=md.encode("utf-8"),
+        file_name=ficha_md.ficha_filename(r["name"]),
+        mime="text/markdown",
+    )
 else:
     st.caption("Este jugador está en la capa cuantitativa; las fichas "
                "individuales corresponden al top en verificación.")
