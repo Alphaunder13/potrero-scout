@@ -1,9 +1,18 @@
 """Home — el hallazgo primero, el metodo a un clic (spec V2 §3)."""
+import importlib
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import common  # noqa: E402
+
+if not hasattr(common, "load_tgs"):
+    # Hot-deploy de Streamlit Cloud: el proceso Python sobrevive al deploy y
+    # sys.modules conserva la version VIEJA de los modulos importados (el file
+    # watcher esta apagado en Cloud), mientras que este page script si se relee
+    # del disco. Si falta el simbolo mas nuevo que esta vista usa, el modulo es
+    # stale: recargarlo. (Incidente de produccion 2026-07-03.)
+    common = importlib.reload(common)
 
 import pandas as pd     # noqa: E402
 import streamlit as st  # noqa: E402

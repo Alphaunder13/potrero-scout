@@ -1,10 +1,15 @@
 """Radar — dos capas señalizadas: cuantitativa (completa) y top-15 en
 verificacion (capa manual). TGS con desglose auditable y export CSV."""
+import importlib
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import common  # noqa: E402
+
+if not hasattr(common, "load_tgs"):
+    # Guard anti hot-deploy stale (ver nota identica en views/home.py).
+    common = importlib.reload(common)
 
 import pandas as pd          # noqa: E402
 import streamlit as st       # noqa: E402

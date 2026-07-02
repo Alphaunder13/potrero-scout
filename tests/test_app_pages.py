@@ -101,6 +101,25 @@ def test_fuentes_estado_vacio_honesto():
     assert "Aún no hay fuentes cargadas" in caps
 
 
+# --- Regresion: incidente de produccion 2026-07-03 ----------------------------
+def test_home_sobrevive_common_stale_tras_hot_deploy(monkeypatch):
+    """Reproduce el incidente real: tras un hot-deploy de Streamlit Cloud, el
+    proceso conserva en sys.modules el common.py VIEJO (sin load_tgs) mientras
+    el page script nuevo ya lo llama -> AttributeError en produccion que la
+    suite no cazaba (los tests siempre importan common fresco). Simulamos el
+    modulo stale borrandole el simbolo; el guard de la vista debe recargarlo."""
+    monkeypatch.delattr(common, "load_tgs")
+    at = AppTest.from_file(str(APP / "views/home.py"), default_timeout=30).run()
+    assert not at.exception
+
+
+def test_radar_sobrevive_common_stale_tras_hot_deploy(monkeypatch):
+    """Mismo guard en la vista Radar (tambien usa common.load_tgs)."""
+    monkeypatch.delattr(common, "load_tgs")
+    at = AppTest.from_file(str(APP / "views/radar.py"), default_timeout=30).run()
+    assert not at.exception
+
+
 # --- Procedencia del snapshot (ADR 0009): unidad pura -------------------------
 def test_procedencia_archivo_faltante():
     assert "no disponible" in common.snapshot_caption(None).lower()
