@@ -254,3 +254,39 @@ nunca una fecha inferida ni hardcodeada.
 - **Positivas:** una sola fuente de verdad para la fecha de edición; la procedencia mostrada es siempre real o declaradamente ausente.
 - **Negativas / riesgos:** el backfill manual depende de que los valores registrados sean correctos; un archivo más que mantener (mitigado: lo escribe la corrida).
 - **Reconsiderar si:** el dataset pasa a actualizarse por partes o por fuente — ahí la procedencia debería ser por-dato (la capa manual de la V2 ya la trae: `last_updated` por registro).
+
+---
+
+## ADR 0010 — La confianza es una dimensión separada, no un multiplicador del score
+
+**Estado:** Aceptada · **Fecha:** 2026-07-02
+
+### Contexto
+La V2 introduce niveles de confianza (A/B/C) asignados a mano en la capa
+verificada, y el Talent Gap Score (0–100) calculado del dato. La tentación
+obvia es multiplicar: `score × confianza`, para que un dato dudoso pese menos
+en el ranking.
+
+### Decisión
+La confianza **no entra en la fórmula del TGS**. Se lee de la capa manual y se
+muestra **siempre al lado del score**, como dimensión separada; donde no está
+asignada, la UI dice **"sin verificar"** — nunca un default que parezca dato.
+
+### Alternativas consideradas
+- **Multiplicar score por confianza:** esconde justo a los jugadores que más
+  vale la pena ir a verificar — una señal alta con confianza C es un *hallazgo
+  pendiente de verificación*, no un descarte. Además rompe la explicabilidad:
+  el score dejaría de ser una suma auditable de subscores.
+- **Penalización aditiva por confianza baja:** mismo problema con otra aritmética.
+- **Filtrar por confianza en vez de mostrarla:** oculta la capa cuantitativa,
+  que es la mitad del producto.
+
+### Consecuencias
+- **Positivas:** el score sigue siendo 100% explicable (suma ponderada de 4
+  subscores); señal y certeza se leen por separado, que es como razona un scout.
+- **Negativas / riesgos:** un usuario apurado puede tomar un TGS alto sin mirar
+  el badge de confianza; se mitiga mostrando el badge pegado al score, nunca
+  separado de él.
+- **Reconsiderar si:** aparece una medida de confianza *derivada del dato*
+  (ej. tamaño de muestra bayesiano) — esa sí podría integrarse a la fórmula
+  sin mezclar juicio manual con cálculo.
