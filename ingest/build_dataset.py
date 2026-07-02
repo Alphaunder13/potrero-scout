@@ -137,6 +137,16 @@ def main() -> None:
         "competition_code": "ARG2",
     }
     meta_path = ROOT / "data" / "snapshot_meta.json"
+    # Preservar SOLO campos de configuracion (no de procedencia) del archivo
+    # anterior: radar_url es config y sobrevive; scrape_started/completed son
+    # procedencia del snapshot VIEJO y quedarian stale -> se descartan.
+    try:
+        previo = json.loads(meta_path.read_text(encoding="utf-8"))
+        for campo in ("radar_url",):
+            if campo in previo:
+                meta[campo] = previo[campo]
+    except Exception:
+        pass
     meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n",
                          encoding="utf-8")
     print(f"  -> metadata de procedencia: {meta_path.relative_to(ROOT)}")

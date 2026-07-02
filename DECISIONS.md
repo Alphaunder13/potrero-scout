@@ -290,3 +290,12 @@ asignada, la UI dice **"sin verificar"** — nunca un default que parezca dato.
 - **Reconsiderar si:** aparece una medida de confianza *derivada del dato*
   (ej. tamaño de muestra bayesiano) — esa sí podría integrarse a la fórmula
   sin mezclar juicio manual con cálculo.
+
+> **Nota (2026-07-02) — roster de la capa verificada por TGS.** El top-15 a
+> verificar manualmente se selecciona por **TGS**, no por el score v1 con el que
+> se armó el primer esqueleto. Razón: mantener la capa verificada elegida por un
+> score mientras todo el producto rankea por otro es una incoherencia
+> metodológica que un usuario del sector detecta de inmediato — y corregirla
+> costó cero porque el CSV aún no tenía datos manuales cargados. Cambio
+> efectivo: salen Aguirre, Arfaras y Maldonado; entran Córdoba, Bonfigli y
+> Benegas.

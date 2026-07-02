@@ -124,5 +124,19 @@ def test_celdas_vacias_nunca_estimadas():
     assert "pendiente de verificación" in linea_encabezado
 
 
+def test_radar_url_desde_metadata(monkeypatch, tmp_path):
+    """La URL del pie viene de snapshot_meta.json (fuente unica, sin valores
+    magicos); si la metadata falta, el pie degrada sin inventar una URL."""
+    # con la metadata real del repo: la URL aparece
+    md = ficha_md.build_ficha_md(_qrow(), UNVERIFIED_ROW, provenance="Datos: test.")
+    assert "streamlit.app" in md
+    # sin metadata: degrada a texto, sin URL inventada
+    monkeypatch.setattr(ficha_md, "META_PATH", tmp_path / "no_existe.json")
+    md2 = ficha_md.build_ficha_md(_qrow(), UNVERIFIED_ROW, provenance="Datos: test.")
+    assert "streamlit.app" not in md2
+    assert "sección Metodología" in md2
+    assert ficha_md.DISCLAIMER in md2
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))

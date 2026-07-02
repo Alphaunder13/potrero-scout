@@ -14,6 +14,7 @@ JAMAS se rellena con un valor estimado o inventado.
 """
 from __future__ import annotations
 
+import json
 import re
 import sys
 import unicodedata
@@ -29,9 +30,18 @@ import talent_gap as tg  # noqa: E402
 
 DISCLAIMER = ("Este dossier presenta señales públicas de posible infravaloración. "
               "No constituye una evaluación de scouting ni una recomendación de fichaje.")
-RADAR_URL = "https://potrero-scout-sdyte4krc3hjvktx8szswg.streamlit.app"
+META_PATH = ROOT / "data" / "snapshot_meta.json"
 REQUIRED_SOURCES = ["source_market_value", "source_minutes", "source_profile"]
 PENDIENTE = "pendiente de verificación"
+
+
+def _radar_url() -> str | None:
+    """URL del radar desde la metadata del snapshot (fuente unica de verdad,
+    ADR 0009). None si falta: el pie de la ficha degrada sin inventar."""
+    try:
+        return json.loads(META_PATH.read_text(encoding="utf-8")).get("radar_url") or None
+    except Exception:
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -202,10 +212,13 @@ def build_ficha_md(qrow, manual_row=None,
         L.append("")
 
     # 10. Cierre
+    url = _radar_url()
+    metodologia = (f" Metodología completa: {url}" if url
+                   else " Metodología completa: ver la sección Metodología del radar.")
     L += ["---",
           "",
           f"Última actualización: {fecha if verified else provenance}",
           "",
-          f"> {DISCLAIMER} Metodología completa: {RADAR_URL}",
+          f"> {DISCLAIMER}{metodologia}",
           ""]
     return "\n".join(L)

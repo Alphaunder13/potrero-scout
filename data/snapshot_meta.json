@@ -8,5 +8,6 @@
   "source": "Transfermarkt",
   "league": "Primera Nacional (Argentina)",
   "competition_code": "ARG2",
+  "radar_url": "https://potrero-scout-sdyte4krc3hjvktx8szswg.streamlit.app",
   "note": "Backfill manual del snapshot V1 (ADR 0009). Las corridas futuras de ingest/build_dataset.py escriben este archivo automaticamente."
 }
