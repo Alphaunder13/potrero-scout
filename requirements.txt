@@ -1,23 +1,21 @@
-# Potrero Scout — dependencias V1
-# NOTA: versiones con minimos flexibles por ahora. Una vez que instale OK,
-# las clavamos con `pip freeze > requirements.txt` (el SPEC pide pin-eado).
+# Potrero Scout — dependencias V2, PINNEADAS (el SPEC lo pide y el deploy lo
+# necesita: versiones exactas = builds reproducibles en Streamlit Cloud).
+# Nota: cambiar este archivo fuerza a Cloud a reconstruir el entorno (reinicio
+# completo del proceso), a diferencia de un hot-deploy de solo codigo.
 
-# --- Datos ---
-pandas>=2.2
-requests>=2.32
-httpx>=0.27
-python-dotenv>=1.0        # cargar las API keys desde .env
+# --- Runtime de la app (Streamlit Cloud instala esto) ---
+pandas==3.0.3
+streamlit==1.58.0
+python-dotenv==1.2.2
 
-# --- Capa de IA (etapa posterior) ---
-anthropic>=0.40
+# --- Capa de IA (CLI local: reports/claude_report.py) ---
+anthropic==0.116.0
 
-# --- Dashboard ---
-streamlit>=1.40
-
-# --- Scraping Transfermarkt / fallback Sofascore (se activan cuando lleguemos) ---
-beautifulsoup4>=4.12
-lxml>=5.2
-# ScraperFC>=3.0          # fallback Sofascore, descomentar en la etapa de ingesta
+# --- Ingesta local (no la usa la app deployada; ScraperFC se instala aparte) ---
+requests==2.34.2
+httpx==0.28.1
+beautifulsoup4==4.15.0
+lxml==6.1.1
 
 # --- Tests ---
-pytest>=8.0
+pytest==9.1.1
